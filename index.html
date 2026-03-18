@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Secure User Authentication</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="card auth-card">
+      <h1>Secure User Authentication</h1>
+      <p class="subtitle">Login or create an account</p>
+
+      <div class="tab-row">
+        <button class="tab-btn active" id="showLoginBtn" type="button">Login</button>
+        <button class="tab-btn" id="showSignupBtn" type="button">Sign Up</button>
+      </div>
+
+      <section id="messageBox" class="message hidden" aria-live="polite"></section>
+
+      <form id="loginForm" class="form-section">
+        <h2>Login</h2>
+        <label>
+          Username
+          <input type="text" id="loginUsername" name="username" required />
+        </label>
+
+        <label>
+          Password
+          <input type="password" id="loginPassword" name="password" required />
+        </label>
+
+        <button type="submit" class="primary-btn">Login</button>
+      </form>
+
+      <form id="signupForm" class="form-section hidden">
+        <h2>Create Account</h2>
+
+        <div class="grid-two">
+          <label>
+            First Name
+            <input type="text" id="firstName" name="firstName" required />
+          </label>
+
+          <label>
+            Last Name
+            <input type="text" id="lastName" name="lastName" required />
+          </label>
+        </div>
+
+        <label>
+          Username
+          <input type="text" id="signupUsername" name="username" required />
+        </label>
+
+        <div class="grid-two">
+          <label>
+            Password
+            <input type="password" id="signupPassword" name="password" required />
+          </label>
+
+          <label>
+            Confirm Password
+            <input type="password" id="confirmPassword" name="confirmPassword" required />
+          </label>
+        </div>
+
+        <div class="grid-two">
+          <label>
+            Email
+            <input type="email" id="email" name="email" required />
+          </label>
+
+          <label>
+            Phone
+            <input type="tel" id="phone" name="phone" placeholder="5551234567" required />
+          </label>
+        </div>
+
+        <button type="submit" class="primary-btn">Create Account</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
