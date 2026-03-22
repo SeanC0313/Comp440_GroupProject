@@ -71,10 +71,10 @@ signupForm.addEventListener('submit', async (event) => {
     return;
   }
 
-  if (payload.phone.length < 10) {
-    showMessage('Please enter a valid phone number.', 'error');
-    return;
-  }
+ if (!/^\d{10,15}$/.test(payload.phone)) {
+  showMessage('Please enter a valid phone number.', 'error');
+  return;
+}
 
   try {
     const response = await fetch('/api/signup', {
