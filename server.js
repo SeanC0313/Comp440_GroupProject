@@ -10,32 +10,66 @@ app.use(express.static(path.join(__dirname, 'public'))); // for UI
 
 // create account 'sign up'
 app.post('/api/signup', (req, res) => {
-  const { username, password, confirmPassword, firstName, lastName, email, phone } = req.body;
+  let { username, password, confirmPassword, firstName, lastName, email, phone } = req.body;
+
+  username = username?.trim();
+  firstName = firstName?.trim();
+  lastName = lastName?.trim();
+  email = email?.trim();
+  phone = phone?.trim();
+
+  if (!username || !password || !confirmPassword || !firstName || !lastName || !email || !phone) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
 
   if (password !== confirmPassword) {
-    return res.status(400).json({ message: 'Passwords Do Not Match ' });
+    return res.status(400).json({ message: 'Passwords do not match.' });
   }
 
   const checkQuery = 'SELECT * FROM user WHERE username = ? OR email = ? OR phone = ?';
+
   db.query(checkQuery, [username, email, phone], (err, results) => {
-    if (err) return res.status(500).json({ message: 'Database error.' });
+    if (err) {
+      return res.status(500).json({ message: 'Database error.' });
+    }
 
     if (results.length > 0) {
       const existing = results[0];
-      if (existing.username === username) return res.status(400).json({ message: 'Username in use ' });
-      if (existing.email === email) return res.status(400).json({ message: 'Email in use ' });
-      if (existing.phone === phone) return res.status(400).json({ message: 'Phone Number in use ' });
+
+      if (existing.username === username) {
+        return res.status(400).json({ message: 'Username already in use.' });
+      }
+
+      if (existing.email === email) {
+        return res.status(400).json({ message: 'Email already in use.' });
+      }
+
+      if (existing.phone === phone) {
+        return res.status(400).json({ message: 'Phone number already in use.' });
+      }
     }
 
     bcrypt.hash(password, 10, (err, hashedPassword) => {
-      if (err) return res.status(500).json({ message: 'Error hashing password.' });
+      if (err) {
+        return res.status(500).json({ message: 'Error hashing password.' });
+      }
 
-      const insertQuery = 'INSERT INTO user (username, password, firstName, lastName, email, phone) VALUES (?, ?, ?, ?, ?, ?)';
+      const insertQuery = `
+        INSERT INTO user (username, password, firstName, lastName, email, phone)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `;
 
-      db.query(insertQuery, [username, hashedPassword, firstName, lastName, email, phone], (err) => {
-        if (err) return res.status(500).json({ message: 'Error Registering User' });
-        res.status(201).json({ message: 'Account Created' });
-      });
+      db.query(
+        insertQuery,
+        [username, hashedPassword, firstName, lastName, email, phone],
+        (err) => {
+          if (err) {
+            return res.status(500).json({ message: 'Error registering user.' });
+          }
+
+          return res.status(201).json({ message: 'Account created successfully.' });
+        }
+      );
     });
   });
 });
