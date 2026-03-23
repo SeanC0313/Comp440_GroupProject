@@ -11,6 +11,9 @@
 ## Server
 - http://localhost:3000
 
+## GitHub
+- https://github.com/SeanC0313/Comp440_GroupProject/tree/main
+
 ## Stack
 - MySQL (database)
 - bcrypt (pw hashing)
