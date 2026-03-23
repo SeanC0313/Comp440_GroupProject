@@ -19,39 +19,39 @@ app.post('/api/signup', (req, res) => {
   phone = phone?.trim();
 
   if (!username || !password || !confirmPassword || !firstName || !lastName || !email || !phone) {
-    return res.status(400).json({ message: 'All fields are required.' });
+    return res.status(400).json({ message: 'All Fields REQUIRED' });
   }
 
   if (password !== confirmPassword) {
-    return res.status(400).json({ message: 'Passwords do not match.' });
+    return res.status(400).json({ message: 'Passwords Do Not Match' });
   }
 
   const checkQuery = 'SELECT * FROM user WHERE username = ? OR email = ? OR phone = ?';
 
   db.query(checkQuery, [username, email, phone], (err, results) => {
     if (err) {
-      return res.status(500).json({ message: 'Database error.' });
+      return res.status(500).json({ message: 'Database Error' });
     }
 
     if (results.length > 0) {
       const existing = results[0];
 
       if (existing.username === username) {
-        return res.status(400).json({ message: 'Username already in use.' });
+        return res.status(400).json({ message: 'Username In Use' });
       }
 
       if (existing.email === email) {
-        return res.status(400).json({ message: 'Email already in use.' });
+        return res.status(400).json({ message: 'Email In Use' });
       }
 
       if (existing.phone === phone) {
-        return res.status(400).json({ message: 'Phone number already in use.' });
+        return res.status(400).json({ message: 'Phone Number In Use' });
       }
     }
 
     bcrypt.hash(password, 10, (err, hashedPassword) => {
       if (err) {
-        return res.status(500).json({ message: 'Error hashing password.' });
+        return res.status(500).json({ message: 'Error Hashing Password' });
       }
 
       const insertQuery = `
@@ -64,22 +64,47 @@ app.post('/api/signup', (req, res) => {
         [username, hashedPassword, firstName, lastName, email, phone],
         (err) => {
           if (err) {
-            return res.status(500).json({ message: 'Error registering user.' });
+            return res.status(500).json({ message: 'Error Registering User' });
           }
 
-          return res.status(201).json({ message: 'Account created successfully.' });
+          return res.status(201).json({ message: 'Account Created Successfully' });
         }
       );
     });
   });
 });
 
-// to add <3
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
 
-// ADD the /api/login route here pls
-// query the user table using a parameterized query (use ? placeholder, NOT string concatenation)
-// bcrypt.compare() to verify the password against the hashed password in the database
-// return the user object on success (error message if failure)
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Username and Password REQUIRED' });
+  }
+
+  const query = 'SELECT * FROM user WHERE username = ?';
+
+  db.query(query, [username], (err, results) => {
+    if (err) return res.status(500).json({ message: 'Database Error' });
+    if (results.length === 0) return res.status(401).json({ message: 'Invalid Username or Password' });
+
+    const user = results[0];
+    bcrypt.compare(password, user.password, (err, match) => {
+      if (err) return res.status(500).json({ message: 'Error Verifying Password' });
+      if (!match) return res.status(401).json({ message: 'Invalid Username or Password' });
+
+      res.status(200).json({
+        message: 'Login Successful',
+        user: {
+          username: user.username,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          phone: user.phone
+        }
+      });
+    });
+  });
+});
 
 app.listen(3000, () => {
   console.log('Server running on http://localhost:3000');
