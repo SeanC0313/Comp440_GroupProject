@@ -9,7 +9,7 @@
 - https://youtu.be/oA4mOsBWDdE
 
 ## Server
-- [http://localhost:3000](https://seanc0313.github.io/Comp440_GroupProject/)
+- https://seanc0313.github.io/Comp440_GroupProject/
 
 ## GitHub
 - https://github.com/SeanC0313/Comp440_GroupProject/tree/main
