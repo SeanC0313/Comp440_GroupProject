@@ -106,6 +106,144 @@ app.post('/api/login', (req, res) => {
   });
 });
 
+// phase 2 stuff
+
+// insert new rental unit
+app.post('/api/rental', (req, res) => {
+  let { username, title, description, features, price } = req.body;
+
+  username = username?.trim();
+  title = title?.trim();
+  description = description?.trim();
+  price = parseFloat(price);
+
+  if (!username || !title || !price || !features || features.length === 0) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
+
+  const today = new Date().toISOString().split('T')[0];
+
+  // check - 2 rentals per day
+  const countQuery = `
+    SELECT COUNT(*) AS count FROM rental_unit
+    WHERE username = ? AND datePosted = ?
+  `;
+
+  db.query(countQuery, [username, today], (err, results) => {
+    if (err) return res.status(500).json({ message: 'Database error.' });
+
+    if (results[0].count >= 2) {
+      return res.status(400).json({ message: 'You can only post 2 rental units per day.' });
+    }
+
+    const insertRental = `
+      INSERT INTO rental_unit (username, title, description, price, datePosted)
+      VALUES (?, ?, ?, ?, ?)
+    `;
+
+    db.query(insertRental, [username, title, description, price, today], (err, result) => {
+      if (err) return res.status(500).json({ message: 'Error inserting rental unit.' });
+
+      const rentalID = result.insertId;
+
+      const featureValues = features.map(f => [rentalID, f.trim()]);
+      const insertFeatures = `INSERT INTO feature (rentalID, feature) VALUES ?`;
+
+      db.query(insertFeatures, [featureValues], (err) => {
+        if (err) return res.status(500).json({ message: 'Error inserting features.' });
+
+        return res.status(201).json({ message: 'Rental unit posted successfully.', rentalID });
+      });
+    });
+  });
+});
+
+// submit review
+app.post('/api/review', (req, res) => {
+  let { username, rentalID, score, remark } = req.body;
+
+  username = username?.trim();
+  rentalID = parseInt(rentalID);
+  score = score?.trim();
+  remark = remark?.trim();
+
+  const validScores = ['Excellent', 'Good', 'Fair', 'Poor'];
+  if (!username || !rentalID || !validScores.includes(score)) {
+    return res.status(400).json({ message: 'Invalid review data.' });
+  }
+
+  const today = new Date().toISOString().split('T')[0];
+
+  // check - 3 reviews per day
+  const countQuery = `
+    SELECT COUNT(*) AS count FROM review
+    WHERE username = ? AND datePosted = ?
+  `;
+
+  db.query(countQuery, [username, today], (err, results) => {
+    if (err) return res.status(500).json({ message: 'Database error.' });
+
+    if (results[0].count >= 3) {
+      return res.status(400).json({ message: 'You can only post 3 reviews per day.' });
+    }
+
+    // check - self-review
+    const ownerQuery = `SELECT username FROM rental_unit WHERE rentalID = ?`;
+
+    db.query(ownerQuery, [rentalID], (err, results) => {
+      if (err) return res.status(500).json({ message: 'Database error.' });
+      if (results.length === 0) return res.status(404).json({ message: 'Rental unit not found.' });
+
+      if (results[0].username === username) {
+        return res.status(400).json({ message: 'You cannot review your own rental unit.' });
+      }
+
+      // check - duplicate review
+      const dupQuery = `
+        SELECT * FROM review WHERE username = ? AND rentalID = ?
+      `;
+
+      db.query(dupQuery, [username, rentalID], (err, results) => {
+        if (err) return res.status(500).json({ message: 'Database error.' });
+
+        if (results.length > 0) {
+          return res.status(400).json({ message: 'You have already reviewed this rental unit.' });
+        }
+
+        const insertReview = `
+          INSERT INTO review (rentalID, username, score, remark, datePosted)
+          VALUES (?, ?, ?, ?, ?)
+        `;
+
+        db.query(insertReview, [rentalID, username, score, remark, today], (err) => {
+          if (err) return res.status(500).json({ message: 'Error submitting review.' });
+
+          return res.status(201).json({ message: 'Review submitted successfully.' });
+        });
+      });
+    });
+  });
+});
+
+// GET rental unit features
+app.get('/api/rentals', (req, res) => {
+  const query = `
+    SELECT r.rentalID, r.username, r.title, r.description, r.price, r.datePosted,
+           GROUP_CONCAT(f.feature SEPARATOR ', ') AS features
+    FROM rental_unit r
+    LEFT JOIN feature f ON r.rentalID = f.rentalID
+    GROUP BY r.rentalID
+    ORDER BY r.datePosted DESC
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).json({ message: 'Database error.' });
+
+    return res.status(200).json({ rentals: results });
+  });
+});
+
 app.listen(3000, () => {
   console.log('Server running on http://localhost:3000');
 });
+
