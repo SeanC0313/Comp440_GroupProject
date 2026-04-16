@@ -243,6 +243,24 @@ app.get('/api/rentals', (req, res) => {
   });
 });
 
+app.get('/api/rentals/search', (req, res) => {
+  const { feature } = req.query;
+
+  const query = `
+    SELECT r.rentalID, r.title, r.description, r.price,
+           GROUP_CONCAT(f.feature SEPARATOR ', ') AS features
+    FROM rental_unit r
+    JOIN feature f ON r.rentalID = f.rentalID
+    WHERE f.feature LIKE ?
+    GROUP BY r.rentalID
+  `;
+
+  db.query(query, [`%${feature}%`], (err, results) => {
+    if (err) return res.status(500).json({ message: 'Database error' });
+    res.json({ rentals: results });
+  });
+});
+
 app.listen(3000, () => {
   console.log('Server running on http://localhost:3000');
 });
