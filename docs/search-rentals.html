@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Search Rentals</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <div class="page">
+            <div class="card">
+                <h1>Search Rentals by Feature</h1>
+                <p class="subtitle">Type one feature to search</p>
+
+                <section id="searchMessageBox" class="message hidden"></section>
+
+                <form id="searchForm">
+                    <label>
+                        Enter Feature
+                        <input type="text" id="featureQuery" placeholder="Wi-Fi" required />
+                    </label>
+
+                    <button type="submit" class="primary-btn">Search Rentals</button>
+                </form>
+                <div id="resultsSection" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+
+    <script src="search-rentals.js"></script>
+    </body>
+</html>

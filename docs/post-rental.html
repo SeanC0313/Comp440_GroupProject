@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Post Rental Unit</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <div class="page">
+            <div class="card">
+                <h1>Post a Rental Unit</h1>
+                <p class="subtitle">Insert a rental unit into the system</p>
+
+                <section id="rentalMessageBox" class="message hidden"></section>
+
+                <form id="rentalForm">
+                    <label>
+                        Title
+                        <input type="text" id="rentalTitle" placeholder="Los Angeles, California" required />
+                    </label>
+
+                    <label>
+                        Description
+                        <input type="text" id="rentalDescription" placeholder="Peaceful modern cabin with a view" required />
+                    </label>
+
+                    <label>
+                        Features
+                        <input type="text" id="rentalFeatures" placeholder="Mountainview, Kitchen, Wi-Fi" required />
+                    </label>
+
+                    <label>
+                        Price
+                        <input type="number" id="rentalPrice" min="1" step="0.01" placeholder="100" required />
+                    </label>
+
+                    <button type="submit" class="primary-btn">Post Rental Unit</button>
+                </form>
+            </div>
+        </div>
+
+        <script src="post-rental.js"></script>
+    </body>
+</html>
