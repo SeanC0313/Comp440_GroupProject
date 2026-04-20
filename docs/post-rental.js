@@ -18,6 +18,7 @@ function parseFeatures(featureText) {
     .filter(Boolean);
 }
 
+
 rentalForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 

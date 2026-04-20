@@ -1,17 +1,21 @@
 {
-  "name": "comp440_team10_p1",
+  "name": "comp440_team10_p2",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "docs/server.js",
   "scripts": {
+    "start": "node docs/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "COMP 440 Phase 2 rental unit project",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "express": "^5.2.1",
     "mysql2": "^3.20.0"
   }
 }
+
+
+

@@ -1,12 +1,12 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const path = require('path');
-const db = require('./db');
+const db = require('../db');
 
 const app = express();
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public'))); // for UI
+app.use(express.static(__dirname)); // for UI
 
 // create account 'sign up'
 app.post('/api/signup', (req, res) => {
@@ -226,42 +226,46 @@ app.post('/api/review', (req, res) => {
 });
 
 // GET rental unit features
-app.get('/api/rentals', (req, res) => {
-  const query = `
-    SELECT r.rentalID, r.username, r.title, r.description, r.price, r.datePosted,
-           GROUP_CONCAT(f.feature SEPARATOR ', ') AS features
-    FROM rental_unit r
-    LEFT JOIN feature f ON r.rentalID = f.rentalID
-    GROUP BY r.rentalID
-    ORDER BY r.datePosted DESC
-  `;
-
-  db.query(query, (err, results) => {
-    if (err) return res.status(500).json({ message: 'Database error.' });
-
-    return res.status(200).json({ rentals: results });
-  });
-});
-
 app.get('/api/rentals/search', (req, res) => {
-  const { feature } = req.query;
+  let { feature } = req.query;
+
+  feature = feature?.trim();
+
+  if (!feature) {
+    return res.status(400).json({ message: 'Please enter a feature to search.' });
+  }
 
   const query = `
-    SELECT r.rentalID, r.title, r.description, r.price,
-           GROUP_CONCAT(f.feature SEPARATOR ', ') AS features
-    FROM rental_unit r
-    JOIN feature f ON r.rentalID = f.rentalID
-    WHERE f.feature LIKE ?
-    GROUP BY r.rentalID
-  `;
+  SELECT
+    r.rentalID,
+    r.username,
+    r.title,
+    r.description,
+    r.price,
+    GROUP_CONCAT(DISTINCT allf.feature ORDER BY allf.feature SEPARATOR ', ') AS features
+  FROM rental_unit r
+  JOIN feature matchf
+    ON r.rentalID = matchf.rentalID
+   AND matchf.feature LIKE ?
+  LEFT JOIN feature allf
+    ON r.rentalID = allf.rentalID
+  GROUP BY r.rentalID, r.username, r.title, r.description, r.price
+  ORDER BY r.rentalID DESC
+`;
+
 
   db.query(query, [`%${feature}%`], (err, results) => {
-    if (err) return res.status(500).json({ message: 'Database error' });
-    res.json({ rentals: results });
+    if (err) {
+      return res.status(500).json({ message: 'Database error.' });
+    }
+
+    return res.status(200).json({ rentals: results });
   });
 });
 
 app.listen(3000, () => {
   console.log('Server running on http://localhost:3000');
 });
+
+
 

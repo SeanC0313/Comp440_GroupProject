@@ -2,5 +2,6 @@
 echo Installing dependencies...
 npm install
 echo Starting server...
-node server.js
+npm start
 pause
+

@@ -37,5 +37,9 @@ CREATE TABLE IF NOT EXISTS review (
   remark TEXT,
   datePosted DATE NOT NULL,
   FOREIGN KEY (rentalID) REFERENCES rental_unit(rentalID),
-  FOREIGN KEY (username) REFERENCES user(username)
+  FOREIGN KEY (username) REFERENCES user(username),
+  UNIQUE KEY unique_user_rental_review(username, rentalID)
 );
+
+
+

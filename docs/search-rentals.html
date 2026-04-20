@@ -1,31 +1,69 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Search Rentals</title>
-        <link rel="stylesheet" href="styles.css" />
-    </head>
-    <body>
-        <div class="page">
-            <div class="card">
-                <h1>Search Rentals by Feature</h1>
-                <p class="subtitle">Type one feature to search</p>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Search Rentals</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <h1>Search Rentals by Feature</h1>
+      <p class="subtitle">Search for a rental, then pick one and write a review.</p>
 
-                <section id="searchMessageBox" class="message hidden"></section>
+      <section id="searchMessageBox" class="message hidden" aria-live="polite"></section>
 
-                <form id="searchForm">
-                    <label>
-                        Enter Feature
-                        <input type="text" id="featureQuery" placeholder="Wi-Fi" required />
-                    </label>
+      <form id="searchForm">
+        <label>
+          Enter Feature
+          <input type="text" id="featureQuery" placeholder="Wi-Fi" required />
+        </label>
 
-                    <button type="submit" class="primary-btn">Search Rentals</button>
-                </form>
-                <div id="resultsSection" style="margin-top: 20px;"></div>
-            </div>
-        </div>
+        <button type="submit" class="primary-btn">Search Rentals</button>
+      </form>
 
-    <script src="search-rentals.js"></script>
-    </body>
+      <div id="resultsSection" style="margin-top: 24px;"></div>
+
+      <section id="reviewMessageBox" class="message hidden" aria-live="polite"></section>
+
+      <section id="reviewSection" class="hidden" style="margin-top: 24px;">
+        <h2>Write a Review</h2>
+        <p><strong>Selected Rental ID:</strong> <span id="selectedRentalId">-</span></p>
+        <p><strong>Selected Rental Title:</strong> <span id="selectedRentalTitle">-</span></p>
+        <p><strong>Posted By:</strong> <span id="selectedRentalOwner">-</span></p>
+
+        <form id="reviewForm">
+          <label>
+            Rating
+            <select id="reviewScore" required>
+              <option value="">Choose a rating</option>
+              <option value="Excellent">Excellent</option>
+              <option value="Good">Good</option>
+              <option value="Fair">Fair</option>
+              <option value="Poor">Poor</option>
+            </select>
+          </label>
+
+          <label>
+            Review Description
+            <textarea
+              id="reviewRemark"
+              rows="4"
+              placeholder="This is a cool place to rent."
+            ></textarea>
+          </label>
+
+          <button type="submit" class="primary-btn">Submit Review</button>
+        </form>
+      </section>
+
+      <div style="margin-top: 18px;">
+        <a class="link-btn" href="dashboard.html">Back to Dashboard</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="search-rentals.js"></script>
+</body>
 </html>

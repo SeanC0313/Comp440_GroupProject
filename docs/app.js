@@ -90,10 +90,10 @@ signupForm.addEventListener('submit', async (event) => {
       return;
     }
 
-    showMessage('Account created successfully. You can now log in.', 'success');
     signupForm.reset();
     switchTab('login');
-  } catch (error) {
+     showMessage('Account created successfully. You can now log in.', 'success');
+    } catch (error) {
     // Demo mode fallback so the page still works before backend is connected
     const demoUsers = JSON.parse(localStorage.getItem('demoUsers') || '[]');
 
