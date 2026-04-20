@@ -1,4 +1,4 @@
-# COMP440 Team 10 - Project Phase 1
+# COMP440 Team 10 - Project Phase 2
 
 ## Team Members
 - Tyra Quiachon
@@ -6,7 +6,7 @@
 - Renata Dantanarayana
 
 ##  Video
-- https://youtu.be/oA4mOsBWDdE
+- https://www.youtube.com/watch?v=lMfTpBzNkKU
 
 ## Server
 - https://seanc0313.github.io/Comp440_GroupProject/
@@ -21,7 +21,12 @@
 - Node.js + Express (backend)
 
 ## Features
-- User registration with duplicate detection (username, email, phone)
-- Password hashing (bcrypt)
-- SQL injection prevention using parameterized queries
-- Login verification for registered users only
+We demonstrated:
+inserting a rental unit,
+auto-generated rental unit IDs,
+the 2-rental-units-per-day rule,
+searching by feature,
+writing reviews,
+and all required review restrictions.
+
+Our user interface is connected to MySQL, and the required database rules are enforced.
