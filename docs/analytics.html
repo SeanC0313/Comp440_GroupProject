@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rental Analytics</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="analytics-page">
+
+  <header class="analytics-topbar">
+    <div>
+      <p class="eyebrow">Advanced Reports</p>
+      <h1>Rental Analytics</h1>
+      <p class="subtitle">Run advanced database queries</p>
+    </div>
+
+    <nav class="analytics-nav">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="post-rental.html">Post Rental</a>
+      <a href="search-rentals.html">Search Rentals</a>
+    </nav>
+  </header>
+
+  <main class="analytics-layout">
+
+    <div class="analytics-card">
+      <h2>Most Expensive Rentals by Feature</h2>
+      <button class="link-btn" onclick="q1()">Run</button>
+    </div>
+
+    <div class="analytics-card">
+      <h2>Same-Day Rentals (Feature X & Y)</h2>
+      X: <input id="x">
+      Y: <input id="y">
+      <button class="link-btn" onclick="q2()">Search</button>
+    </div>
+
+    <div class="analytics-card">
+      <h2>Good/Excellent Rentals by User</h2>
+      Username: <input id="user">
+      <button class="link-btn" onclick="q3()">Search</button>
+    </div>
+
+    <div class="analytics-card">
+      <h2>Top Posters by Date</h2>
+      Date: <input type="date" id="date">
+      <button class="link-btn" onclick="q4()">Search</button>
+    </div>
+
+    <div class="analytics-card">
+      <h2>Users with Only Poor Reviews</h2>
+      <button class="link-btn" onclick="q5()">Run</button>
+    </div>
+
+    <div class="analytics-card">
+      <h2>No Poor Reviews Received</h2>
+      <button class="link-btn" onclick="q6()">Run</button>
+    </div>
+
+  </main>
+
+  <section class="results-card">
+    <h2>Results</h2>
+    <div id="results">Run a query to see results</div>
+  </section>
+
+</div>
+
+<script src="analytics.js"></script>
+</body>
+</html>

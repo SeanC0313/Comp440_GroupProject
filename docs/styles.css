@@ -184,3 +184,34 @@ input {
   gap: 12px;
   margin: 16px 0;
 }
+
+.analytics-page {
+  padding: 20px;
+}
+
+.analytics-topbar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.analytics-nav a {
+  margin-left: 10px;
+}
+
+.analytics-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.analytics-card {
+  background: white;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.results-card {
+  margin-top: 20px;
+}
