@@ -34,18 +34,18 @@ async function q1() {
 }
 
 async function q2() {
-  const x = document.getElementById('x').value;
-  const y = document.getElementById('y').value;
+  const x = document.getElementById('x').value.trim();
+  const y = document.getElementById('y').value.trim();
 
-  const res = await fetch(`/api/analytics/q2?x=${x}&y=${y}`);
+  const res = await fetch(`/api/analytics/q2?x=${encodeURIComponent(x)}&y=${encodeURIComponent(y)}`);
   const data = await res.json();
   show(data.results);
 }
 
 async function q3() {
-  const user = document.getElementById('user').value;
+  const user = document.getElementById('user').value.trim();
 
-  const res = await fetch(`/api/analytics/q3?username=${user}`);
+  const res = await fetch(`/api/analytics/q3?username=${encodeURIComponent(user)}`);
   const data = await res.json();
   show(data.results);
 }
@@ -53,7 +53,7 @@ async function q3() {
 async function q4() {
   const date = document.getElementById('date').value;
 
-  const res = await fetch(`/api/analytics/q4?date=${date}`);
+  const res = await fetch(`/api/analytics/q4?date=${encodeURIComponent(date)}`);
   const data = await res.json();
   show(data.results);
 }

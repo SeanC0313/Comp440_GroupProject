@@ -263,6 +263,246 @@ app.get('/api/rentals/search', (req, res) => {
   });
 });
 
+// ===============================
+// PHASE 3 ANALYTICS ROUTES
+// Paste these BEFORE app.listen(3000)
+// ===============================
+
+// 1. List the most expensive rental units for each feature
+app.get('/api/analytics/q1', (req, res) => {
+  const query = `
+    SELECT DISTINCT
+      f.feature,
+      r.rentalID,
+      r.username,
+      r.title,
+      r.description,
+      r.price,
+      r.datePosted
+    FROM feature f
+    JOIN rental_unit r
+      ON f.rentalID = r.rentalID
+    JOIN (
+      SELECT
+        f2.feature,
+        MAX(r2.price) AS maxPrice
+      FROM feature f2
+      JOIN rental_unit r2
+        ON f2.rentalID = r2.rentalID
+      GROUP BY f2.feature
+    ) max_rentals
+      ON f.feature = max_rentals.feature
+     AND r.price = max_rentals.maxPrice
+    ORDER BY f.feature, r.price DESC;
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Q1 error:', err);
+      return res.status(500).json({ message: 'Database error.' });
+    }
+
+    return res.json({ results: results });
+  });
+});
+
+
+// 2. List users who posted two different rental units on the same day,
+// one with feature X and another with feature Y
+app.get('/api/analytics/q2', (req, res) => {
+  let { x, y } = req.query;
+
+  x = x?.trim();
+  y = y?.trim();
+
+  if (!x || !y) {
+    return res.status(400).json({ message: 'Both feature X and feature Y are required.' });
+  }
+
+  const query = `
+    SELECT DISTINCT
+      r1.username,
+      r1.datePosted,
+      r1.rentalID AS rentalWithFeatureX,
+      r1.title AS titleWithFeatureX,
+      r2.rentalID AS rentalWithFeatureY,
+      r2.title AS titleWithFeatureY
+    FROM rental_unit r1
+    JOIN feature f1
+      ON r1.rentalID = f1.rentalID
+    JOIN rental_unit r2
+      ON r1.username = r2.username
+     AND r1.datePosted = r2.datePosted
+     AND r1.rentalID <> r2.rentalID
+    JOIN feature f2
+      ON r2.rentalID = f2.rentalID
+    WHERE f1.feature = ?
+      AND f2.feature = ?
+    ORDER BY r1.username, r1.datePosted;
+  `;
+
+  db.query(query, [x, y], (err, results) => {
+    if (err) {
+      console.error('Q2 error:', err);
+      return res.status(500).json({ message: 'Database error.' });
+    }
+
+    return res.json({ results: results });
+  });
+});
+
+
+// 3. List all rental units posted by user X where the rental has reviews,
+// and every review is Excellent or Good
+app.get('/api/analytics/q3', (req, res) => {
+  let { username } = req.query;
+
+  username = username?.trim();
+
+  if (!username) {
+    return res.status(400).json({ message: 'Username is required.' });
+  }
+
+  const query = `
+    SELECT
+      r.rentalID,
+      r.username,
+      r.title,
+      r.description,
+      r.price,
+      r.datePosted,
+      COUNT(rv.reviewID) AS reviewCount
+    FROM rental_unit r
+    JOIN review rv
+      ON r.rentalID = rv.rentalID
+    WHERE r.username = ?
+    GROUP BY
+      r.rentalID,
+      r.username,
+      r.title,
+      r.description,
+      r.price,
+      r.datePosted
+    HAVING COUNT(rv.reviewID) > 0
+       AND SUM(
+         CASE
+           WHEN rv.score NOT IN ('Excellent', 'Good') THEN 1
+           ELSE 0
+         END
+       ) = 0
+    ORDER BY r.datePosted DESC, r.rentalID DESC;
+  `;
+
+  db.query(query, [username], (err, results) => {
+    if (err) {
+      console.error('Q3 error:', err);
+      return res.status(500).json({ message: 'Database error.' });
+    }
+
+    return res.json({ results: results });
+  });
+});
+
+
+// 4. For a given date, list the user or users who posted the most rentals.
+// Include ties.
+app.get('/api/analytics/q4', (req, res) => {
+  let { date } = req.query;
+
+  date = date?.trim();
+
+  if (!date) {
+    return res.status(400).json({ message: 'Date is required.' });
+  }
+
+  const query = `
+    SELECT
+      username,
+      COUNT(*) AS rentalCount
+    FROM rental_unit
+    WHERE datePosted = ?
+    GROUP BY username
+    HAVING COUNT(*) = (
+      SELECT MAX(userRentalCount)
+      FROM (
+        SELECT COUNT(*) AS userRentalCount
+        FROM rental_unit
+        WHERE datePosted = ?
+        GROUP BY username
+      ) counts
+    )
+    ORDER BY username;
+  `;
+
+  db.query(query, [date, date], (err, results) => {
+    if (err) {
+      console.error('Q4 error:', err);
+      return res.status(500).json({ message: 'Database error.' });
+    }
+
+    return res.json({ results: results });
+  });
+});
+
+
+// 5. Display users who posted at least one review,
+// and every review they posted is Poor
+app.get('/api/analytics/q5', (req, res) => {
+  const query = `
+    SELECT
+      username,
+      COUNT(*) AS reviewCount
+    FROM review
+    GROUP BY username
+    HAVING COUNT(*) > 0
+       AND SUM(
+         CASE
+           WHEN score <> 'Poor' THEN 1
+           ELSE 0
+         END
+       ) = 0
+    ORDER BY username;
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Q5 error:', err);
+      return res.status(500).json({ message: 'Database error.' });
+    }
+
+    return res.json({ results: results });
+  });
+});
+
+
+// 6. Display users who posted at least one rental unit,
+// and none of their rental units ever received a Poor review.
+// Rentals with no reviews are okay.
+app.get('/api/analytics/q6', (req, res) => {
+  const query = `
+    SELECT
+      r.username,
+      COUNT(DISTINCT r.rentalID) AS rentalCount
+    FROM rental_unit r
+    LEFT JOIN review rv
+      ON r.rentalID = rv.rentalID
+     AND rv.score = 'Poor'
+    GROUP BY r.username
+    HAVING COUNT(DISTINCT r.rentalID) > 0
+       AND COUNT(rv.reviewID) = 0
+    ORDER BY r.username;
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Q6 error:', err);
+      return res.status(500).json({ message: 'Database error.' });
+    }
+
+    return res.json({ results: results });
+  });
+});
+
 app.listen(3000, () => {
   console.log('Server running on http://localhost:3000');
 });
